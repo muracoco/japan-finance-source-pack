@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import csv
 import re
+from io import StringIO
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -53,11 +55,14 @@ def _file_candidates(page_url: str, limit: int = 12) -> tuple[list[dict], list[s
     return candidates, limitations
 
 
-def jpx_public_candidates() -> tuple[list[dict], list[str]]:
+def jpx_public_candidates(parse_csv: bool = False) -> tuple[list[dict], list[str]]:
     sources: list[dict] = []
     limitations: list[str] = []
     for source_type, item in JPX_PAGES.items():
         file_candidates, source_limitations = _file_candidates(item["url"])
+        if parse_csv:
+            csv_limitations = _add_csv_samples(file_candidates)
+            source_limitations.extend(csv_limitations)
         limitations.extend(source_limitations)
         sources.append(
             source(
@@ -71,3 +76,26 @@ def jpx_public_candidates() -> tuple[list[dict], list[str]]:
             )
         )
     return sources, limitations
+
+
+def _add_csv_samples(file_candidates: list[dict], sample_size: int = 5) -> list[str]:
+    limitations: list[str] = []
+    for candidate in file_candidates:
+        url = str(candidate.get("url") or "")
+        if not url.lower().split("?", 1)[0].endswith(".csv"):
+            candidate["parse_status"] = "skipped_non_csv"
+            continue
+        try:
+            text = http_text(url, timeout=30)
+            rows = list(csv.DictReader(StringIO(text)))
+        except Exception as exc:  # noqa: BLE001
+            candidate["parse_status"] = "csv_parse_failed"
+            limitations.append(f"JPX CSV candidate parse failed: {exc}")
+            continue
+        candidate["parse_status"] = "csv_sampled"
+        candidate["sample_row_count"] = len(rows)
+        candidate["sample_rows"] = rows[:sample_size]
+
+    if file_candidates and not any(item.get("parse_status") == "csv_sampled" for item in file_candidates):
+        limitations.append("JPX parse mode found no CSV candidates to sample; non-CSV files were left as candidates.")
+    return limitations

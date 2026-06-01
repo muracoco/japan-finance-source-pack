@@ -37,6 +37,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--market", default="TSE", help="Market label.")
     parser.add_argument("--date", required=True, help="Analysis date as YYYYMMDD.")
     parser.add_argument("--skip-jpx", action="store_true", help="Skip JPX public source discovery.")
+    parser.add_argument(
+        "--parse-jpx-csv",
+        action="store_true",
+        help="Fetch and sample CSV file candidates from JPX pages without writing downloads.",
+    )
     parser.add_argument("--skip-edinet", action="store_true", help="Skip EDINET metadata discovery.")
     parser.add_argument("--skip-edinetdb", action="store_true", help="Skip EDINET DB company profile lookup.")
     parser.add_argument("--skip-jquants", action="store_true", help="Skip J-Quants Free retrieval.")
@@ -88,7 +93,7 @@ def build_pack(args: argparse.Namespace) -> dict:
     add_limitations(pack, ir_limitations)
 
     if not args.skip_jpx:
-        jpx_sources, jpx_limitations = jpx_public_candidates()
+        jpx_sources, jpx_limitations = jpx_public_candidates(parse_csv=args.parse_jpx_csv)
         pack["retrieved_sources"]["jpx_public"] = jpx_sources
         add_limitations(pack, jpx_limitations)
 

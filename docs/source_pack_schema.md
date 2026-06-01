@@ -45,6 +45,8 @@ Each source object should include:
 
 Source-specific fields can be added when useful, such as `file_candidates`, `title`, `query`, or `row_count`.
 
+JPX file candidates may include `parse_status`, `sample_row_count`, and `sample_rows` when `--parse-jpx-csv` is used. This mode samples CSV candidates in memory and does not write downloaded exchange files.
+
 ## Required Follow-Up Fields
 
 The tool intentionally leaves unstable or hard-to-verify fields in `chatgpt_required_fields`, such as:
