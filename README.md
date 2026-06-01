@@ -9,7 +9,9 @@ The goal is to separate source discovery from final investment analysis. The too
 - Creates a structured source-pack JSON for a Japanese listed company.
 - Adds official JPX public data pages and downloadable file candidates.
 - Adds company IR search candidates without bulk-downloading PDFs.
-- Optionally retrieves J-Quants listed information when `JQUANTS_API_KEY` is set.
+- Optionally retrieves EDINET metadata when `EDINET_API_KEY` is set.
+- Optionally retrieves EDINET DB company profile data when `EDINETDB_API_KEY` is set.
+- Optionally retrieves J-Quants listed information, daily quotes, and financial statements when `JQUANTS_API_KEY` is set.
 - Leaves unstable market fields, analyst estimates, and final judgment as explicit follow-up fields.
 
 ## Why This Exists
@@ -72,23 +74,25 @@ All authenticated connectors are optional. Missing credentials should skip that 
 | --- | --- | --- |
 | JPX public pages | None | Public page and file-candidate discovery |
 | Company IR search candidates | None | Search-candidate discovery only |
-| J-Quants | `JQUANTS_API_KEY` | Listed-info adapter started |
-| EDINET API | `EDINET_API_KEY` | Planned optional metadata discovery |
-| EDINET DB | `EDINETDB_API_KEY` | Planned optional connector |
+| J-Quants | `JQUANTS_API_KEY` | Listed info, daily quotes, and financial statements |
+| EDINET API | `EDINET_API_KEY` | Optional filing metadata discovery |
+| EDINET DB | `EDINETDB_API_KEY` | Optional company profile lookup |
 
-Set `JQUANTS_API_KEY` in your local shell if you want to try J-Quants retrieval.
+Set API keys in your local shell if you want to try authenticated retrieval.
 
 ```powershell
 $env:JQUANTS_API_KEY = "..."
+$env:EDINET_API_KEY = "..."
+$env:EDINETDB_API_KEY = "..."
 ```
 
 Do not commit `.env`, tokens, downloaded filings, generated reports, or cache files.
 
 ## Roadmap
 
-- Add EDINET filing metadata discovery.
-- Expand J-Quants listed info, daily prices, and financial summary support.
-- Add EDINET DB as an optional connector.
+- Add deeper EDINET document retrieval and XBRL/CSV parsing behind explicit user flags.
+- Expand J-Quants field normalization and plan-aware endpoint coverage.
+- Add EDINET DB financials and disclosure timeline adapters.
 - Add JPX download/parse mode behind explicit user flags.
 - Keep the schema stable enough for downstream report-generation tools.
 

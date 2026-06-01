@@ -18,6 +18,8 @@
         "file_candidates": []
       }
     ],
+    "edinet": [],
+    "edinetdb": [],
     "jquants_free": [],
     "company_ir": [
       {
@@ -37,7 +39,11 @@
     ]
   },
   "extracted_facts": {
+    "filing_metadata": [],
+    "company_profile": [],
     "listed_info": [],
+    "daily_quotes": [],
+    "financial_statements": [],
     "market_structure": [],
     "ir_documents": []
   },

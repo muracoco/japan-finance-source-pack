@@ -13,6 +13,8 @@ def test_build_pack_without_network_flags() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        skip_edinet=True,
+        skip_edinetdb=True,
         skip_jquants=True,
         output="",
         validate=False,
@@ -23,6 +25,8 @@ def test_build_pack_without_network_flags() -> None:
     assert pack["stock"]["code"] == "7203"
     assert pack["retrieved_sources"]["company_ir"]
     assert pack["retrieved_sources"]["jpx_public"] == []
+    assert pack["retrieved_sources"]["edinet"] == []
+    assert pack["retrieved_sources"]["edinetdb"] == []
     assert pack["retrieved_sources"]["jquants_free"] == []
 
 
@@ -33,6 +37,8 @@ def test_valid_pack_passes_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        skip_edinet=True,
+        skip_edinetdb=True,
         skip_jquants=True,
         output="",
         validate=True,
@@ -48,6 +54,8 @@ def test_missing_top_level_key_fails_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        skip_edinet=True,
+        skip_edinetdb=True,
         skip_jquants=True,
         output="",
         validate=True,
@@ -65,6 +73,8 @@ def test_missing_stock_code_fails_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        skip_edinet=True,
+        skip_edinetdb=True,
         skip_jquants=True,
         output="",
         validate=True,
@@ -85,11 +95,17 @@ def test_empty_optional_source_lists_are_valid() -> None:
         },
         "retrieved_sources": {
             "jpx_public": [],
+            "edinet": [],
+            "edinetdb": [],
             "jquants_free": [],
             "company_ir": [],
         },
         "extracted_facts": {
+            "filing_metadata": [],
+            "company_profile": [],
             "listed_info": [],
+            "daily_quotes": [],
+            "financial_statements": [],
             "market_structure": [],
             "ir_documents": [],
         },
@@ -98,3 +114,27 @@ def test_empty_optional_source_lists_are_valid() -> None:
     }
 
     assert validate_pack(pack) == []
+
+
+def test_missing_optional_api_keys_leave_limitations() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        skip_edinet=False,
+        skip_edinetdb=False,
+        skip_jquants=False,
+        output="",
+        validate=True,
+    )
+
+    pack = build_pack(args)
+
+    assert validate_pack(pack) == []
+    assert "EDINET_API_KEY is not set; EDINET metadata discovery was skipped." in pack["limitations"]
+    assert "EDINETDB_API_KEY is not set; EDINET DB lookup was skipped." in pack["limitations"]
+    assert "JQUANTS_API_KEY is not set; listed-info retrieval was skipped." in pack["limitations"]
+    assert "JQUANTS_API_KEY is not set; daily-quotes retrieval was skipped." in pack["limitations"]
+    assert "JQUANTS_API_KEY is not set; financial-statements retrieval was skipped." in pack["limitations"]
