@@ -54,6 +54,30 @@ def test_company_ir_candidates_use_specific_source_types() -> None:
     assert "company_ir_report_search_candidate" in source_types
 
 
+def test_company_ir_candidates_include_multiple_ir_page_queries() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=False,
+    )
+
+    page_types = {
+        item["inferred_document_type"]
+        for item in build_pack(args)["retrieved_sources"]["company_ir"]
+        if item["source_type"] == "company_ir_page_search_candidate"
+    }
+
+    assert page_types == {"ir_page", "ir_library", "financial_results_page"}
+
+
 def test_valid_pack_passes_validation() -> None:
     args = Namespace(
         code="7203",
