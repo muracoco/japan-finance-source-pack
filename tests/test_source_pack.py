@@ -32,6 +32,28 @@ def test_build_pack_without_network_flags() -> None:
     assert pack["retrieved_sources"]["jquants_free"] == []
 
 
+def test_company_ir_candidates_use_specific_source_types() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=False,
+    )
+
+    source_types = {item["source_type"] for item in build_pack(args)["retrieved_sources"]["company_ir"]}
+
+    assert "company_ir_earnings_search_candidate" in source_types
+    assert "company_ir_presentation_search_candidate" in source_types
+    assert "company_ir_report_search_candidate" in source_types
+
+
 def test_valid_pack_passes_validation() -> None:
     args = Namespace(
         code="7203",
