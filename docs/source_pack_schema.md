@@ -47,6 +47,8 @@ Source-specific fields can be added when useful, such as `file_candidates`, `tit
 
 JPX file candidates may include `parse_status`, `sample_row_count`, and `sample_rows` when `--parse-jpx-csv` is used. This mode samples CSV candidates in memory and does not write downloaded exchange files.
 
+Company IR candidates should stay non-primary search leads unless the official company domain and document date are verified by a human.
+
 ## Required Follow-Up Fields
 
 The tool intentionally leaves unstable or hard-to-verify fields in `chatgpt_required_fields`, such as:

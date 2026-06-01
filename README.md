@@ -80,6 +80,8 @@ All authenticated connectors are optional. Missing credentials should skip that 
 | EDINET API | `EDINET_API_KEY` | Optional filing metadata discovery |
 | EDINET DB | `EDINETDB_API_KEY` | Optional company profile lookup |
 
+Company IR entries are intentionally search candidates. Treat them as leads until a human verifies the official company domain, document date, and site terms.
+
 Set API keys in your local shell if you want to try authenticated retrieval.
 
 ```powershell
