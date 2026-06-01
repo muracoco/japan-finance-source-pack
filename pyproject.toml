@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "japan-finance-source-pack"
+version = "0.1.0"
+description = "Build source-pack JSON for Japanese equity research from public sources."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["japan", "finance", "equity-research", "source-pack", "jpx", "jquants"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/muracoco/japan-finance-source-pack"
+Issues = "https://github.com/muracoco/japan-finance-source-pack/issues"
+
+[project.scripts]
+japan-finance-source-pack = "japan_finance_source_pack.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
