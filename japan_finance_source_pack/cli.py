@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from .common import write_json
 from .company_ir import company_ir_candidates
 from .jpx import jpx_public_candidates
 from .jquants import jquants_listed_info
+from .validation import validate_pack
 
 CHATGPT_REQUIRED_FIELDS = [
     "latest_stock_price",
@@ -35,6 +37,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-jpx", action="store_true", help="Skip JPX public source discovery.")
     parser.add_argument("--skip-jquants", action="store_true", help="Skip J-Quants Free retrieval.")
     parser.add_argument("--output", default="", help="Output JSON path.")
+    parser.add_argument("--validate", action="store_true", help="Validate the generated source pack before writing.")
     return parser.parse_args()
 
 
@@ -92,6 +95,12 @@ def main() -> int:
     args = parse_args()
     output = Path(args.output) if args.output else Path("outputs") / f"source_pack_{args.code}_{args.date}.json"
     pack = build_pack(args)
+    if args.validate:
+        errors = validate_pack(pack)
+        if errors:
+            for error in errors:
+                print(f"validation error: {error}", file=sys.stderr)
+            return 1
     write_json(output, pack)
     print(output)
     return 0
