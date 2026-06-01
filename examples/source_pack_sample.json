@@ -24,17 +24,34 @@
     "company_ir": [
       {
         "source_name": "Company IR search candidate: earnings release",
-        "source_type": "company_ir_search_candidate",
+        "source_type": "company_ir_earnings_search_candidate",
         "source_url": "https://www.google.com/search?q=Sample+Company+0000+earnings+release+IR+PDF",
         "retrieved_at": "2026-06-01T00:00:00+09:00",
         "is_primary_source": false,
         "data_delay_note": "Search candidate only. Verify the official company IR page before using facts.",
         "limitations": [
+          "Human verification is required before using this candidate as source evidence.",
+          "The official company domain, document date, and site terms must be checked manually.",
           "This sample contains no private notes, generated reports, downloaded filings, or API credentials."
         ],
         "title": "Sample Company earnings release",
         "inferred_document_type": "earnings_release",
         "query": "Sample Company 0000 earnings release IR PDF"
+      },
+      {
+        "source_name": "Company IR page search candidate: investor relations",
+        "source_type": "company_ir_page_search_candidate",
+        "source_url": "https://www.google.com/search?q=Sample+Company+0000+investor+relations",
+        "retrieved_at": "2026-06-01T00:00:00+09:00",
+        "is_primary_source": false,
+        "data_delay_note": "Search candidate only. Not a retrieved company document.",
+        "limitations": [
+          "Human verification is required before using this candidate as source evidence.",
+          "The official company domain, document date, and site terms must be checked manually."
+        ],
+        "title": "Sample Company investor relations",
+        "inferred_document_type": "ir_page",
+        "query": "Sample Company 0000 investor relations"
       }
     ]
   },
@@ -56,6 +73,7 @@
   ],
   "limitations": [
     "This is mock sample output for documentation.",
+    "Company IR candidates are not primary sources until a human verifies the official domain.",
     "Current market data and final investment judgment must be verified at report time."
   ]
 }
