@@ -5,6 +5,11 @@ from urllib.parse import quote_plus
 
 from .common import source
 
+HUMAN_VERIFICATION_LIMITATIONS = [
+    "Human verification is required before using this candidate as source evidence.",
+    "The official company domain, document date, and site terms must be checked manually.",
+]
+
 @dataclass(frozen=True)
 class IrSearchTarget:
     keyword: str
@@ -41,7 +46,7 @@ def company_ir_candidates(code: str, name: str) -> tuple[list[dict], list[str]]:
                 data_delay_note="Search candidate only. Verify the official company IR page before using facts.",
                 limitations=[
                     "This project does not bulk-download company IR PDFs.",
-                    "Users must verify the official domain, document date, and site terms.",
+                    *HUMAN_VERIFICATION_LIMITATIONS,
                 ],
                 title=f"{name} {target.keyword}",
                 inferred_document_type=target.document_type,
@@ -58,7 +63,7 @@ def company_ir_candidates(code: str, name: str) -> tuple[list[dict], list[str]]:
                 source_url=f"https://www.google.com/search?q={quote_plus(query)}",
                 is_primary_source=False,
                 data_delay_note="Search candidate only. Not a retrieved company document.",
-                limitations=["Verify the official company domain before adopting facts."],
+                limitations=HUMAN_VERIFICATION_LIMITATIONS,
                 title=f"{name} {keyword}",
                 inferred_document_type=page_type,
                 query=query,
@@ -66,6 +71,7 @@ def company_ir_candidates(code: str, name: str) -> tuple[list[dict], list[str]]:
         )
 
     limitations = [
-        "Company IR discovery is limited to search candidates; official document retrieval is intentionally manual."
+        "Company IR discovery is limited to search candidates; official document retrieval is intentionally manual.",
+        "Company IR candidates are not primary sources until a human verifies the official domain.",
     ]
     return candidates, limitations

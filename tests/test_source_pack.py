@@ -78,6 +78,30 @@ def test_company_ir_candidates_include_multiple_ir_page_queries() -> None:
     assert page_types == {"ir_page", "ir_library", "financial_results_page"}
 
 
+def test_company_ir_candidates_require_human_verification() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=False,
+    )
+
+    pack = build_pack(args)
+
+    assert "Company IR candidates are not primary sources until a human verifies the official domain." in pack["limitations"]
+    assert all(
+        "Human verification is required before using this candidate as source evidence." in item["limitations"]
+        for item in pack["retrieved_sources"]["company_ir"]
+    )
+
+
 def test_valid_pack_passes_validation() -> None:
     args = Namespace(
         code="7203",
