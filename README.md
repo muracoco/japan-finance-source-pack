@@ -43,7 +43,7 @@ No runtime third-party dependency is required for the current minimal version.
 ## Usage
 
 ```powershell
-python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --market TSE --date 20260601 --skip-jquants
+python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --market TSE --date 20260601 --skip-jquants --validate
 ```
 
 By default, the command writes:
@@ -58,7 +58,23 @@ For an offline-safe smoke run:
 python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --market TSE --date 20260601 --skip-jpx --skip-jquants --output outputs/sample.json
 ```
 
-## Optional J-Quants
+Add `--validate` to check the generated source-pack structure before writing it.
+
+## Example Output
+
+See [examples/source_pack_sample.json](examples/source_pack_sample.json) for a non-sensitive mock source pack. The sample shows the intended handoff shape without using real API credentials, downloaded filings, generated reports, or private research notes.
+
+## Optional Data Connectors
+
+All authenticated connectors are optional. Missing credentials should skip that source and leave an explicit limitation instead of failing the whole workflow.
+
+| Source | Environment variable | Current status |
+| --- | --- | --- |
+| JPX public pages | None | Public page and file-candidate discovery |
+| Company IR search candidates | None | Search-candidate discovery only |
+| J-Quants | `JQUANTS_API_KEY` | Listed-info adapter started |
+| EDINET API | `EDINET_API_KEY` | Planned optional metadata discovery |
+| EDINET DB | `EDINETDB_API_KEY` | Planned optional connector |
 
 Set `JQUANTS_API_KEY` in your local shell if you want to try J-Quants retrieval.
 
@@ -71,9 +87,9 @@ Do not commit `.env`, tokens, downloaded filings, generated reports, or cache fi
 ## Roadmap
 
 - Add EDINET filing metadata discovery.
-- Add source-pack validation.
-- Add richer examples that use mock or public non-sensitive sample data.
-- Add adapters for other official Japanese market data pages.
+- Expand J-Quants listed info, daily prices, and financial summary support.
+- Add EDINET DB as an optional connector.
+- Add JPX download/parse mode behind explicit user flags.
 - Keep the schema stable enough for downstream report-generation tools.
 
 ## Maintainer Notes
