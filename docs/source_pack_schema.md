@@ -51,3 +51,28 @@ The tool intentionally leaves unstable or hard-to-verify fields in `chatgpt_requ
 - final investment view
 
 These fields should be verified at report time from current sources.
+
+## Validation
+
+The CLI can validate the generated shape before writing:
+
+```powershell
+python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --market TSE --date 20260601 --skip-jpx --skip-jquants --validate
+```
+
+Validation checks the minimum public contract:
+
+- required top-level keys exist
+- `stock.code`, `stock.name`, `stock.market`, and `stock.analysis_date` are non-empty strings
+- `retrieved_sources` and `extracted_facts` are objects of lists
+- source objects include source name, type, URL, retrieval time, primary-source flag, delay note, and limitations
+
+## Optional Connector Policy
+
+Authenticated connectors must be optional. If an API key is missing, the connector should skip retrieval and add a clear limitation rather than failing the whole workflow.
+
+Planned environment variables:
+
+- `EDINET_API_KEY`
+- `EDINETDB_API_KEY`
+- `JQUANTS_API_KEY`
