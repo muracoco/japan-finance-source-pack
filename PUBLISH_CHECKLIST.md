@@ -32,9 +32,9 @@ Before making the repository public:
 - [ ] Confirm no downloaded filings, generated reports, images, spreadsheets, PDFs, or cache files are present.
 - [ ] Confirm `README.md`, `LICENSE`, `SECURITY.md`, and `OPEN_SOURCE_NOTES.md` are present.
 - [ ] Install real Python locally and run `python -m pytest`.
-- [ ] Run the offline smoke command from `README.md`.
-- [ ] Create a new GitHub repository named `japan-finance-source-pack`.
-- [ ] Push this folder as the initial `main` branch.
+- [ ] Run the offline smoke command from `README.md` with `--validate`.
+- [ ] Confirm `examples/source_pack_sample.json` contains only mock data.
+- [ ] Create three public issues for validation, sample output, and optional API connectors.
 - [ ] Keep the first release small and label it `v0.1.0`.
 
 Initial commit message:
