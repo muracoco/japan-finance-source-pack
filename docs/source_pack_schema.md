@@ -12,11 +12,17 @@ The source pack is an intermediate JSON artifact for Japanese equity research.
   },
   "retrieved_sources": {
     "jpx_public": [],
+    "edinet": [],
+    "edinetdb": [],
     "jquants_free": [],
     "company_ir": []
   },
   "extracted_facts": {
+    "filing_metadata": [],
+    "company_profile": [],
     "listed_info": [],
+    "daily_quotes": [],
+    "financial_statements": [],
     "market_structure": [],
     "ir_documents": []
   },
@@ -76,3 +82,11 @@ Planned environment variables:
 - `EDINET_API_KEY`
 - `EDINETDB_API_KEY`
 - `JQUANTS_API_KEY`
+
+Implemented optional connectors:
+
+- EDINET document metadata discovery uses the official EDINET API v2 document-list endpoint and stores filing summaries only.
+- EDINET DB company profile lookup uses `X-API-Key` authentication and records the returned company profile as non-primary aggregated data.
+- J-Quants retrieval covers listed info, daily quotes, and financial statements when a key is available.
+
+The source pack never writes API keys to `source_url`; EDINET URLs redact `Subscription-Key`.

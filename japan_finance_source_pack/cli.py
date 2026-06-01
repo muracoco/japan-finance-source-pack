@@ -6,8 +6,10 @@ from pathlib import Path
 
 from .common import write_json
 from .company_ir import company_ir_candidates
+from .edinet import edinet_document_metadata
+from .edinetdb import edinetdb_company_profile
 from .jpx import jpx_public_candidates
-from .jquants import jquants_listed_info
+from .jquants import jquants_daily_quotes, jquants_financial_statements, jquants_listed_info
 from .validation import validate_pack
 
 CHATGPT_REQUIRED_FIELDS = [
@@ -35,6 +37,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--market", default="TSE", help="Market label.")
     parser.add_argument("--date", required=True, help="Analysis date as YYYYMMDD.")
     parser.add_argument("--skip-jpx", action="store_true", help="Skip JPX public source discovery.")
+    parser.add_argument("--skip-edinet", action="store_true", help="Skip EDINET metadata discovery.")
+    parser.add_argument("--skip-edinetdb", action="store_true", help="Skip EDINET DB company profile lookup.")
     parser.add_argument("--skip-jquants", action="store_true", help="Skip J-Quants Free retrieval.")
     parser.add_argument("--output", default="", help="Output JSON path.")
     parser.add_argument("--validate", action="store_true", help="Validate the generated source pack before writing.")
@@ -51,11 +55,17 @@ def empty_pack(args: argparse.Namespace) -> dict:
         },
         "retrieved_sources": {
             "jpx_public": [],
+            "edinet": [],
+            "edinetdb": [],
             "jquants_free": [],
             "company_ir": [],
         },
         "extracted_facts": {
+            "filing_metadata": [],
+            "company_profile": [],
             "listed_info": [],
+            "daily_quotes": [],
+            "financial_statements": [],
             "market_structure": [],
             "ir_documents": [],
         },
@@ -82,11 +92,27 @@ def build_pack(args: argparse.Namespace) -> dict:
         pack["retrieved_sources"]["jpx_public"] = jpx_sources
         add_limitations(pack, jpx_limitations)
 
+    if not args.skip_edinet:
+        edinet_sources, filing_metadata, edinet_limitations = edinet_document_metadata(args.date, args.code)
+        pack["retrieved_sources"]["edinet"] = edinet_sources
+        pack["extracted_facts"]["filing_metadata"] = filing_metadata
+        add_limitations(pack, edinet_limitations)
+
+    if not args.skip_edinetdb:
+        edinetdb_sources, company_profile, edinetdb_limitations = edinetdb_company_profile(args.code)
+        pack["retrieved_sources"]["edinetdb"] = edinetdb_sources
+        pack["extracted_facts"]["company_profile"] = company_profile
+        add_limitations(pack, edinetdb_limitations)
+
     if not args.skip_jquants:
         jquants_sources, listed_info, jquants_limitations = jquants_listed_info(args.code)
-        pack["retrieved_sources"]["jquants_free"] = jquants_sources
+        daily_sources, daily_quotes, daily_limitations = jquants_daily_quotes(args.code, args.date)
+        statement_sources, statements, statement_limitations = jquants_financial_statements(args.code)
+        pack["retrieved_sources"]["jquants_free"] = jquants_sources + daily_sources + statement_sources
         pack["extracted_facts"]["listed_info"] = listed_info
-        add_limitations(pack, jquants_limitations)
+        pack["extracted_facts"]["daily_quotes"] = daily_quotes
+        pack["extracted_facts"]["financial_statements"] = statements
+        add_limitations(pack, jquants_limitations + daily_limitations + statement_limitations)
 
     return pack
 
