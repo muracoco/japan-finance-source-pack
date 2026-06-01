@@ -21,6 +21,12 @@ IR_SEARCH_TARGETS = [
     IrSearchTarget("integrated report", "integrated_report", "company_ir_report_search_candidate"),
 ]
 
+IR_PAGE_QUERIES = [
+    ("investor relations", "ir_page"),
+    ("IR library", "ir_library"),
+    ("financial results", "financial_results_page"),
+]
+
 
 def company_ir_candidates(code: str, name: str) -> tuple[list[dict], list[str]]:
     candidates: list[dict] = []
@@ -43,20 +49,21 @@ def company_ir_candidates(code: str, name: str) -> tuple[list[dict], list[str]]:
             )
         )
 
-    query = f"{name} {code} investor relations"
-    candidates.append(
-        source(
-            source_name="Company IR page search candidate",
-            source_type="company_ir_page_search_candidate",
-            source_url=f"https://www.google.com/search?q={quote_plus(query)}",
-            is_primary_source=False,
-            data_delay_note="Search candidate only. Not a retrieved company document.",
-            limitations=["Verify the official company domain before adopting facts."],
-            title=f"{name} investor relations",
-            inferred_document_type="ir_page",
-            query=query,
+    for keyword, page_type in IR_PAGE_QUERIES:
+        query = f"{name} {code} {keyword}"
+        candidates.append(
+            source(
+                source_name=f"Company IR page search candidate: {keyword}",
+                source_type="company_ir_page_search_candidate",
+                source_url=f"https://www.google.com/search?q={quote_plus(query)}",
+                is_primary_source=False,
+                data_delay_note="Search candidate only. Not a retrieved company document.",
+                limitations=["Verify the official company domain before adopting facts."],
+                title=f"{name} {keyword}",
+                inferred_document_type=page_type,
+                query=query,
+            )
         )
-    )
 
     limitations = [
         "Company IR discovery is limited to search candidates; official document retrieval is intentionally manual."
