@@ -3,6 +3,7 @@ from __future__ import annotations
 from argparse import Namespace
 
 from japan_finance_source_pack.cli import build_pack
+from japan_finance_source_pack import jpx
 from japan_finance_source_pack.validation import validate_pack
 
 
@@ -13,6 +14,7 @@ def test_build_pack_without_network_flags() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        parse_jpx_csv=False,
         skip_edinet=True,
         skip_edinetdb=True,
         skip_jquants=True,
@@ -37,6 +39,7 @@ def test_valid_pack_passes_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        parse_jpx_csv=False,
         skip_edinet=True,
         skip_edinetdb=True,
         skip_jquants=True,
@@ -54,6 +57,7 @@ def test_missing_top_level_key_fails_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        parse_jpx_csv=False,
         skip_edinet=True,
         skip_edinetdb=True,
         skip_jquants=True,
@@ -73,6 +77,7 @@ def test_missing_stock_code_fails_validation() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        parse_jpx_csv=False,
         skip_edinet=True,
         skip_edinetdb=True,
         skip_jquants=True,
@@ -123,6 +128,7 @@ def test_missing_optional_api_keys_leave_limitations() -> None:
         market="TSE",
         date="20260601",
         skip_jpx=True,
+        parse_jpx_csv=False,
         skip_edinet=False,
         skip_edinetdb=False,
         skip_jquants=False,
@@ -138,3 +144,27 @@ def test_missing_optional_api_keys_leave_limitations() -> None:
     assert "JQUANTS_API_KEY is not set; listed-info retrieval was skipped." in pack["limitations"]
     assert "JQUANTS_API_KEY is not set; daily-quotes retrieval was skipped." in pack["limitations"]
     assert "JQUANTS_API_KEY is not set; financial-statements retrieval was skipped." in pack["limitations"]
+
+
+def test_jpx_csv_parse_mode_samples_csv_candidates(monkeypatch) -> None:
+    def fake_http_text(url: str, timeout: int = 30) -> str:
+        return "code,name\n7203,Toyota Motor\n6758,Sony Group\n"
+
+    monkeypatch.setattr(jpx, "http_text", fake_http_text)
+    candidates = [{"url": "https://example.test/sample.csv"}]
+
+    limitations = jpx._add_csv_samples(candidates, sample_size=1)
+
+    assert limitations == []
+    assert candidates[0]["parse_status"] == "csv_sampled"
+    assert candidates[0]["sample_row_count"] == 2
+    assert candidates[0]["sample_rows"] == [{"code": "7203", "name": "Toyota Motor"}]
+
+
+def test_jpx_csv_parse_mode_skips_non_csv_candidates() -> None:
+    candidates = [{"url": "https://example.test/sample.xlsx"}]
+
+    limitations = jpx._add_csv_samples(candidates)
+
+    assert candidates[0]["parse_status"] == "skipped_non_csv"
+    assert limitations == ["JPX parse mode found no CSV candidates to sample; non-CSV files were left as candidates."]

@@ -62,6 +62,8 @@ python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --mark
 
 Add `--validate` to check the generated source-pack structure before writing it.
 
+Use `--parse-jpx-csv` only when you explicitly want the tool to fetch CSV file candidates from JPX pages and keep a small in-memory row sample in the source pack. It does not write downloaded files.
+
 ## Example Output
 
 See [examples/source_pack_sample.json](examples/source_pack_sample.json) for a non-sensitive mock source pack. The sample shows the intended handoff shape without using real API credentials, downloaded filings, generated reports, or private research notes.
@@ -93,7 +95,7 @@ Do not commit `.env`, tokens, downloaded filings, generated reports, or cache fi
 - Add deeper EDINET document retrieval and XBRL/CSV parsing behind explicit user flags.
 - Expand J-Quants field normalization and plan-aware endpoint coverage.
 - Add EDINET DB financials and disclosure timeline adapters.
-- Add JPX download/parse mode behind explicit user flags.
+- Expand JPX parse support beyond CSV candidates while keeping explicit user flags.
 - Keep the schema stable enough for downstream report-generation tools.
 
 ## Maintainer Notes
