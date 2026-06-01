@@ -102,6 +102,28 @@ def test_company_ir_candidates_require_human_verification() -> None:
     )
 
 
+def test_company_ir_candidates_stay_non_primary_search_candidates() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=False,
+    )
+
+    candidates = build_pack(args)["retrieved_sources"]["company_ir"]
+
+    assert all(item["is_primary_source"] is False for item in candidates)
+    assert all(item["source_url"].startswith("https://www.google.com/search?q=") for item in candidates)
+    assert all("query" in item for item in candidates)
+
+
 def test_valid_pack_passes_validation() -> None:
     args = Namespace(
         code="7203",
