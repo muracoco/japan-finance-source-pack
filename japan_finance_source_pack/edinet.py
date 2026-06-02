@@ -7,6 +7,12 @@ from .common import http_json, make_url, source
 BASE_URL = "https://api.edinet-fsa.go.jp/api/v2"
 DISCLOSURE_NOTE = "EDINET filing metadata is disclosure-date based. Verify document details before extracting facts."
 TARGET_DOC_TYPES = {"120", "130", "140", "160"}
+DOC_TYPE_LABELS = {
+    "120": "annual_securities_report",
+    "130": "quarterly_report",
+    "140": "semiannual_report",
+    "160": "amendment_report",
+}
 
 
 def _api_key() -> str | None:
@@ -80,7 +86,11 @@ def _document_summary(row: dict) -> dict:
         "pdfFlag",
         "csvFlag",
     ]
-    return {key: row.get(key) for key in keys if key in row}
+    summary = {key: row.get(key) for key in keys if key in row}
+    doc_type_code = str(row.get("docTypeCode") or "")
+    if doc_type_code in DOC_TYPE_LABELS:
+        summary["document_category"] = DOC_TYPE_LABELS[doc_type_code]
+    return summary
 
 
 def _redact_subscription_key(url: str) -> str:
