@@ -3,6 +3,7 @@ from __future__ import annotations
 from argparse import Namespace
 
 from japan_finance_source_pack.cli import build_pack
+from japan_finance_source_pack import edinet
 from japan_finance_source_pack import jpx
 from japan_finance_source_pack.validation import validate_pack
 
@@ -236,6 +237,20 @@ def test_missing_optional_api_keys_leave_limitations() -> None:
     assert "JQUANTS_API_KEY is not set; listed-info retrieval was skipped." in pack["limitations"]
     assert "JQUANTS_API_KEY is not set; daily-quotes retrieval was skipped." in pack["limitations"]
     assert "JQUANTS_API_KEY is not set; financial-statements retrieval was skipped." in pack["limitations"]
+
+
+def test_edinet_document_summary_adds_document_category() -> None:
+    summary = edinet._document_summary(
+        {
+            "docID": "S100TEST",
+            "secCode": "72030",
+            "docTypeCode": "120",
+            "filerName": "Sample Company",
+        }
+    )
+
+    assert summary["document_category"] == "annual_securities_report"
+    assert summary["docID"] == "S100TEST"
 
 
 def test_jpx_csv_parse_mode_samples_csv_candidates(monkeypatch) -> None:
