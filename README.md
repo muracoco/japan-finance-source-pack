@@ -99,6 +99,7 @@ Near-term, low-risk maintenance:
 - Keep Company IR search candidates explicit and human-verifiable.
 - Add small normalization helpers for optional connector responses.
 - Improve examples and tests without adding downloaded filings or cached outputs.
+- Keep issue templates, pull request checks, and release notes current as the schema evolves.
 
 Larger follow-up work:
 
@@ -111,6 +112,20 @@ Larger follow-up work:
 ## Maintainer Notes
 
 This repository is intentionally conservative. New data connectors should prefer official public pages, document known delays, and fail with explicit limitations rather than silently guessing.
+
+Maintenance work is expected to include:
+
+- reviewing pull requests for source provenance, schema compatibility, and credential safety
+- triaging issues into bugs, source coverage requests, connector requests, and documentation tasks
+- keeping CI green across supported Python versions
+- publishing small tagged releases when the output schema or connector behavior changes
+
+Public-safety boundaries:
+
+- Do not commit `.env` files, API keys, downloaded filings, generated reports, private notes, screenshots, spreadsheets, PDFs, or caches.
+- Keep examples mock or clearly non-sensitive.
+- Treat company IR search results as leads until the official domain, document date, and terms are verified.
+- Prefer explicit limitations over inferred financial facts.
 
 ## Output Shape
 
