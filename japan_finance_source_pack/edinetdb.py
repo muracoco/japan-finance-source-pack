@@ -19,8 +19,7 @@ def edinetdb_company_profile(code: str) -> tuple[list[dict], list[dict], list[st
 
     url = f"{BASE_URL}/companies/{code}"
     payload = http_json(url, headers={"X-API-Key": key})
-    data = payload.get("data", payload)
-    rows = [data] if isinstance(data, dict) else []
+    rows = _company_profile_rows(payload)
 
     limitations = []
     if not rows:
@@ -41,3 +40,10 @@ def edinetdb_company_profile(code: str) -> tuple[list[dict], list[dict], list[st
         rows,
         limitations,
     )
+
+
+def _company_profile_rows(payload: dict) -> list[dict]:
+    data = payload.get("data", payload)
+    if isinstance(data, dict):
+        return [data]
+    return []
