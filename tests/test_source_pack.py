@@ -4,6 +4,7 @@ from argparse import Namespace
 
 from japan_finance_source_pack.cli import build_pack
 from japan_finance_source_pack import edinet
+from japan_finance_source_pack import edinetdb
 from japan_finance_source_pack import jpx
 from japan_finance_source_pack import jquants
 from japan_finance_source_pack.validation import validate_pack
@@ -257,6 +258,12 @@ def test_edinet_document_summary_adds_document_category() -> None:
 def test_jquants_format_date_accepts_yyyymmdd_and_iso() -> None:
     assert jquants._format_date("20260601") == "2026-06-01"
     assert jquants._format_date("2026-06-01") == "2026-06-01"
+
+
+def test_edinetdb_company_profile_rows_accepts_data_object_only() -> None:
+    assert edinetdb._company_profile_rows({"data": {"code": "7203"}}) == [{"code": "7203"}]
+    assert edinetdb._company_profile_rows({"code": "7203"}) == [{"code": "7203"}]
+    assert edinetdb._company_profile_rows({"data": []}) == []
 
 
 def test_jpx_csv_parse_mode_samples_csv_candidates(monkeypatch) -> None:
