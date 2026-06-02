@@ -18,7 +18,18 @@
         "file_candidates": []
       }
     ],
-    "edinet": [],
+    "edinet": [
+      {
+        "source_name": "EDINET document metadata",
+        "source_type": "edinet_document_metadata",
+        "source_url": "https://api.edinet-fsa.go.jp/api/v2/documents.json?date=2026-06-01&type=2&Subscription-Key=REDACTED",
+        "retrieved_at": "2026-06-01T00:00:00+09:00",
+        "is_primary_source": true,
+        "data_delay_note": "EDINET filing metadata is disclosure-date based. Verify document details before extracting facts.",
+        "limitations": [],
+        "row_count": 1
+      }
+    ],
     "edinetdb": [],
     "jquants_free": [],
     "company_ir": [
@@ -56,7 +67,18 @@
     ]
   },
   "extracted_facts": {
-    "filing_metadata": [],
+    "filing_metadata": [
+      {
+        "docID": "S100SAMPLE",
+        "edinetCode": "E00000",
+        "secCode": "00000",
+        "filerName": "Sample Company",
+        "docTypeCode": "120",
+        "submitDateTime": "2026-06-01 10:00",
+        "docDescription": "Sample annual securities report metadata",
+        "document_category": "annual_securities_report"
+      }
+    ],
     "company_profile": [],
     "listed_info": [],
     "daily_quotes": [],
