@@ -94,6 +94,14 @@ Do not commit `.env`, tokens, downloaded filings, generated reports, or cache fi
 
 ## Roadmap
 
+Near-term, low-risk maintenance:
+
+- Keep Company IR search candidates explicit and human-verifiable.
+- Add small normalization helpers for optional connector responses.
+- Improve examples and tests without adding downloaded filings or cached outputs.
+
+Larger follow-up work:
+
 - Add deeper EDINET document retrieval and XBRL/CSV parsing behind explicit user flags.
 - Expand J-Quants field normalization and plan-aware endpoint coverage.
 - Add EDINET DB financials and disclosure timeline adapters.
