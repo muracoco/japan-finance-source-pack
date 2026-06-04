@@ -27,6 +27,7 @@ def test_build_pack_without_network_flags() -> None:
 
     pack = build_pack(args)
 
+    assert pack["schema_version"] == "0.1"
     assert pack["stock"]["code"] == "7203"
     assert pack["retrieved_sources"]["company_ir"]
     assert pack["retrieved_sources"]["jpx_public"] == []
@@ -165,6 +166,29 @@ def test_missing_top_level_key_fails_validation() -> None:
     assert "missing top-level key: stock" in validate_pack(pack)
 
 
+def test_missing_schema_version_fails_validation() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=True,
+    )
+    pack = build_pack(args)
+    del pack["schema_version"]
+
+    errors = validate_pack(pack)
+
+    assert "missing top-level key: schema_version" in errors
+    assert "schema_version must be a non-empty string" in errors
+
+
 def test_missing_stock_code_fails_validation() -> None:
     args = Namespace(
         code="7203",
@@ -187,6 +211,7 @@ def test_missing_stock_code_fails_validation() -> None:
 
 def test_empty_optional_source_lists_are_valid() -> None:
     pack = {
+        "schema_version": "0.1",
         "stock": {
             "code": "7203",
             "name": "Toyota Motor",

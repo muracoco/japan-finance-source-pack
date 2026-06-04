@@ -12,6 +12,8 @@ from .jpx import jpx_public_candidates
 from .jquants import jquants_daily_quotes, jquants_financial_statements, jquants_listed_info
 from .validation import validate_pack
 
+SCHEMA_VERSION = "0.1"
+
 CHATGPT_REQUIRED_FIELDS = [
     "latest_stock_price",
     "latest_market_cap",
@@ -52,6 +54,7 @@ def parse_args() -> argparse.Namespace:
 
 def empty_pack(args: argparse.Namespace) -> dict:
     return {
+        "schema_version": SCHEMA_VERSION,
         "stock": {
             "code": args.code,
             "name": args.name,

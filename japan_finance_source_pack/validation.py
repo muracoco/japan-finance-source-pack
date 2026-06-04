@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import Any
 
 REQUIRED_TOP_LEVEL_KEYS = {
+    "schema_version",
     "stock",
     "retrieved_sources",
     "extracted_facts",
@@ -29,6 +30,10 @@ def validate_pack(pack: Mapping[str, Any]) -> list[str]:
     missing = sorted(REQUIRED_TOP_LEVEL_KEYS - set(pack))
     for key in missing:
         errors.append(f"missing top-level key: {key}")
+
+    schema_version = pack.get("schema_version")
+    if not isinstance(schema_version, str) or not schema_version.strip():
+        errors.append("schema_version must be a non-empty string")
 
     stock = pack.get("stock")
     if not isinstance(stock, Mapping):
