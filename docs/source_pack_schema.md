@@ -4,6 +4,7 @@ The source pack is an intermediate JSON artifact for Japanese equity research.
 
 ```json
 {
+  "schema_version": "0.1",
   "stock": {
     "code": "7203",
     "name": "Toyota Motor",
@@ -30,6 +31,10 @@ The source pack is an intermediate JSON artifact for Japanese equity research.
   "limitations": []
 }
 ```
+
+## Schema Version
+
+`schema_version` identifies the public source-pack shape. Version `0.1` is the initial non-breaking schema used by this early OSS release.
 
 ## Source Object
 

@@ -1,4 +1,5 @@
 {
+  "schema_version": "0.1",
   "stock": {
     "code": "0000",
     "name": "Sample Company",
