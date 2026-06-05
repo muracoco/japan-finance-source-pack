@@ -313,3 +313,34 @@ def test_jpx_csv_parse_mode_skips_non_csv_candidates() -> None:
 
     assert candidates[0]["parse_status"] == "skipped_non_csv"
     assert limitations == ["JPX parse mode found no CSV candidates to sample; non-CSV files were left as candidates."]
+
+
+def test_jpx_csv_parse_mode_accepts_empty_csv_rows(monkeypatch) -> None:
+    def fake_http_text(url: str, timeout: int = 30) -> str:
+        return "code,name\n"
+
+    monkeypatch.setattr(jpx, "http_text", fake_http_text)
+    candidates = [{"url": "https://example.test/empty.csv"}]
+
+    limitations = jpx._add_csv_samples(candidates)
+
+    assert limitations == []
+    assert candidates[0]["parse_status"] == "csv_sampled"
+    assert candidates[0]["sample_row_count"] == 0
+    assert candidates[0]["sample_rows"] == []
+
+
+def test_jpx_csv_parse_mode_records_parse_failures(monkeypatch) -> None:
+    def fake_http_text(url: str, timeout: int = 30) -> str:
+        raise TimeoutError("request timed out")
+
+    monkeypatch.setattr(jpx, "http_text", fake_http_text)
+    candidates = [{"url": "https://example.test/broken.csv"}]
+
+    limitations = jpx._add_csv_samples(candidates)
+
+    assert candidates[0]["parse_status"] == "csv_parse_failed"
+    assert limitations == [
+        "JPX CSV candidate parse failed: request timed out",
+        "JPX parse mode found no CSV candidates to sample; non-CSV files were left as candidates.",
+    ]
