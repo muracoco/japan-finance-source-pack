@@ -55,6 +55,16 @@ Release checklist:
 - [ ] Release notes mention schema changes, connector changes, and known limitations.
 - [ ] No ignored output, cache, or credential files are staged.
 
+v0.1.1 release checklist:
+
+- [ ] Confirm generated packs include `schema_version: "0.1"`.
+- [ ] Confirm `examples/source_pack_sample.json` matches the documented schema.
+- [ ] Confirm connector changes remain optional and leave limitations when credentials are missing.
+- [ ] Run `python -m pytest -q`.
+- [ ] Run the offline smoke command with `--skip-jpx --skip-jquants --skip-edinet --skip-edinetdb --validate`.
+- [ ] Confirm no `.env`, cache, downloaded filings, spreadsheets, PDFs, images, or generated outputs are staged.
+- [ ] Keep release notes focused on schema metadata, sample/docs sync, and connector safety boundaries.
+
 Initial commit message:
 
 ```text
