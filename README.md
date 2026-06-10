@@ -68,6 +68,29 @@ Use `--parse-jpx-csv` only when you explicitly want the tool to fetch CSV file c
 
 See [examples/source_pack_sample.json](examples/source_pack_sample.json) for a non-sensitive mock source pack. The sample shows the intended handoff shape without using real API credentials, downloaded filings, generated reports, or private research notes.
 
+Compact excerpt:
+
+```json
+{
+  "schema_version": "0.1",
+  "stock": {
+    "code": "0000",
+    "name": "Sample Company",
+    "market": "TSE",
+    "analysis_date": "20260601"
+  },
+  "retrieved_sources": {
+    "jpx_public": [{ "source_type": "margin_balance", "is_primary_source": true }],
+    "company_ir": [{ "source_type": "company_ir_earnings_search_candidate", "is_primary_source": false }]
+  },
+  "chatgpt_required_fields": ["latest_stock_price", "latest_news", "final_investment_view"],
+  "limitations": [
+    "This is mock sample output for documentation.",
+    "Current market data and final investment judgment must be verified at report time."
+  ]
+}
+```
+
 ## Optional Data Connectors
 
 All authenticated connectors are optional. Missing credentials should skip that source and leave an explicit limitation instead of failing the whole workflow.
