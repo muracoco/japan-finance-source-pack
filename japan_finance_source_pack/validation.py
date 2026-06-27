@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import Any
+from urllib.parse import urlparse
 
 REQUIRED_TOP_LEVEL_KEYS = {
     "schema_version",
@@ -91,3 +92,45 @@ def _validate_source(item: Any, path: str, errors: list[str]) -> None:
 
     if "limitations" in item and not isinstance(item["limitations"], list):
         errors.append(f"{path}.limitations must be a list")
+
+    source_url = item.get("source_url")
+    if "source_url" in item and not _is_http_url(source_url):
+        errors.append(f"{path}.source_url must be an http(s) URL")
+
+    source_type = item.get("source_type")
+    if isinstance(source_type, str):
+        if source_type.startswith("company_ir_"):
+            _validate_company_ir_candidate(item, path, errors)
+        if source_type in {"margin_balance", "short_selling_value", "short_positions"}:
+            _validate_jpx_public_source(item, path, errors)
+
+
+def _is_http_url(value: Any) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    parsed = urlparse(value)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
+def _validate_company_ir_candidate(item: Mapping[str, Any], path: str, errors: list[str]) -> None:
+    if item.get("is_primary_source") is not False:
+        errors.append(f"{path}.is_primary_source must be false for company IR search candidates")
+
+    query = item.get("query")
+    if not isinstance(query, str) or not query.strip():
+        errors.append(f"{path}.query must be a non-empty string for company IR search candidates")
+
+    inferred_document_type = item.get("inferred_document_type")
+    if not isinstance(inferred_document_type, str) or not inferred_document_type.strip():
+        errors.append(
+            f"{path}.inferred_document_type must be a non-empty string for company IR search candidates"
+        )
+
+
+def _validate_jpx_public_source(item: Mapping[str, Any], path: str, errors: list[str]) -> None:
+    if item.get("is_primary_source") is not True:
+        errors.append(f"{path}.is_primary_source must be true for JPX public sources")
+
+    file_candidates = item.get("file_candidates")
+    if file_candidates is not None and not isinstance(file_candidates, list):
+        errors.append(f"{path}.file_candidates must be a list when present")

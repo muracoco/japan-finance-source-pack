@@ -209,6 +209,105 @@ def test_missing_stock_code_fails_validation() -> None:
     assert "stock.code must be a non-empty string" in validate_pack(pack)
 
 
+def test_invalid_source_url_fails_validation() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=True,
+    )
+    pack = build_pack(args)
+    pack["retrieved_sources"]["company_ir"][0]["source_url"] = "not-a-url"
+
+    assert "retrieved_sources.company_ir[0].source_url must be an http(s) URL" in validate_pack(pack)
+
+
+def test_company_ir_candidate_validation_requires_search_metadata() -> None:
+    args = Namespace(
+        code="7203",
+        name="Toyota Motor",
+        market="TSE",
+        date="20260601",
+        skip_jpx=True,
+        parse_jpx_csv=False,
+        skip_edinet=True,
+        skip_edinetdb=True,
+        skip_jquants=True,
+        output="",
+        validate=True,
+    )
+    pack = build_pack(args)
+    candidate = pack["retrieved_sources"]["company_ir"][0]
+    candidate["is_primary_source"] = True
+    candidate["query"] = ""
+    del candidate["inferred_document_type"]
+
+    errors = validate_pack(pack)
+
+    assert (
+        "retrieved_sources.company_ir[0].is_primary_source must be false for company IR search candidates"
+        in errors
+    )
+    assert "retrieved_sources.company_ir[0].query must be a non-empty string for company IR search candidates" in errors
+    assert (
+        "retrieved_sources.company_ir[0].inferred_document_type must be a non-empty string for company IR search candidates"
+        in errors
+    )
+
+
+def test_jpx_source_validation_requires_primary_source_and_candidate_list() -> None:
+    pack = {
+        "schema_version": "0.1",
+        "stock": {
+            "code": "7203",
+            "name": "Toyota Motor",
+            "market": "TSE",
+            "analysis_date": "20260601",
+        },
+        "retrieved_sources": {
+            "jpx_public": [
+                {
+                    "source_name": "JPX margin trading statistics",
+                    "source_type": "margin_balance",
+                    "source_url": "https://www.jpx.co.jp/markets/statistics-equities/margin/index.html",
+                    "retrieved_at": "2026-06-01T00:00:00+09:00",
+                    "is_primary_source": False,
+                    "data_delay_note": "Official JPX page for margin trading statistics.",
+                    "limitations": [],
+                    "file_candidates": "not-a-list",
+                }
+            ],
+            "edinet": [],
+            "edinetdb": [],
+            "jquants_free": [],
+            "company_ir": [],
+        },
+        "extracted_facts": {
+            "filing_metadata": [],
+            "company_profile": [],
+            "listed_info": [],
+            "daily_quotes": [],
+            "financial_statements": [],
+            "market_structure": [],
+            "ir_documents": [],
+        },
+        "chatgpt_required_fields": ["latest_stock_price"],
+        "limitations": [],
+    }
+
+    errors = validate_pack(pack)
+
+    assert "retrieved_sources.jpx_public[0].is_primary_source must be true for JPX public sources" in errors
+    assert "retrieved_sources.jpx_public[0].file_candidates must be a list when present" in errors
+
+
 def test_empty_optional_source_lists_are_valid() -> None:
     pack = {
         "schema_version": "0.1",
