@@ -78,9 +78,13 @@ python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --mark
 Validation checks the minimum public contract:
 
 - required top-level keys exist
+- `schema_version` is a non-empty string
 - `stock.code`, `stock.name`, `stock.market`, and `stock.analysis_date` are non-empty strings
 - `retrieved_sources` and `extracted_facts` are objects of lists
 - source objects include source name, type, URL, retrieval time, primary-source flag, delay note, and limitations
+- source URLs use `http` or `https`
+- Company IR search candidates stay non-primary and include `query` and `inferred_document_type`
+- JPX public sources stay primary and use a list for `file_candidates` when present
 
 ## Optional Connector Policy
 
