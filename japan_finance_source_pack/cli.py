@@ -38,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--name", required=True, help="Company name.")
     parser.add_argument("--market", default="TSE", help="Market label.")
     parser.add_argument("--date", required=True, help="Analysis date as YYYYMMDD.")
+    parser.add_argument("--offline", action="store_true", help="Generate search URLs only; disable all network retrieval.")
     parser.add_argument("--skip-jpx", action="store_true", help="Skip JPX public source discovery.")
     parser.add_argument(
         "--parse-jpx-csv",
@@ -94,6 +95,15 @@ def build_pack(args: argparse.Namespace) -> dict:
     ir_sources, ir_limitations = company_ir_candidates(args.code, args.name)
     pack["retrieved_sources"]["company_ir"] = ir_sources
     add_limitations(pack, ir_limitations)
+
+    if getattr(args, "offline", False):
+        add_limitations(pack, [
+            "Offline mode: JPX public pages and files were not fetched.",
+            "Offline mode: EDINET filing metadata was not fetched.",
+            "Offline mode: EDINET DB company profile was not fetched.",
+            "Offline mode: J-Quants listed info, daily quotes and financial statements were not fetched.",
+        ])
+        return pack
 
     if not args.skip_jpx:
         jpx_sources, jpx_limitations = jpx_public_candidates(parse_csv=args.parse_jpx_csv)

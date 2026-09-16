@@ -3,6 +3,7 @@ from __future__ import annotations
 from argparse import Namespace
 
 from japan_finance_source_pack.cli import build_pack
+from japan_finance_source_pack import common
 from japan_finance_source_pack import edinet
 from japan_finance_source_pack import edinetdb
 from japan_finance_source_pack import jpx
@@ -340,7 +341,10 @@ def test_empty_optional_source_lists_are_valid() -> None:
     assert validate_pack(pack) == []
 
 
-def test_missing_optional_api_keys_leave_limitations() -> None:
+def test_missing_optional_api_keys_leave_limitations(monkeypatch) -> None:
+    for name in ("EDINET_API_KEY", "EDINETDB_API_KEY", "JQUANTS_API_KEY", "JQUANTS_ID_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
+
     args = Namespace(
         code="7203",
         name="Toyota Motor",
@@ -430,16 +434,16 @@ def test_jpx_csv_parse_mode_accepts_empty_csv_rows(monkeypatch) -> None:
 
 
 def test_jpx_csv_parse_mode_records_parse_failures(monkeypatch) -> None:
-    def fake_http_text(url: str, timeout: int = 30) -> str:
+    def fake_urlopen(request, timeout: int = 30):
         raise TimeoutError("request timed out")
 
-    monkeypatch.setattr(jpx, "http_text", fake_http_text)
+    monkeypatch.setattr(common, "urlopen", fake_urlopen)
     candidates = [{"url": "https://example.test/broken.csv"}]
 
     limitations = jpx._add_csv_samples(candidates)
 
     assert candidates[0]["parse_status"] == "csv_parse_failed"
     assert limitations == [
-        "JPX CSV candidate parse failed: request timed out",
+        "JPX CSV candidate parse failed: Network retrieval failed for https://example.test/broken.csv (TimeoutError)",
         "JPX parse mode found no CSV candidates to sample; non-CSV files were left as candidates.",
     ]

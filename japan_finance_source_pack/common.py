@@ -2,14 +2,24 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta, timezone
+from http.client import HTTPException
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 JST = timezone(timedelta(hours=9))
 USER_AGENT = "japan-finance-source-pack/0.1"
+
+
+class RetrievalError(RuntimeError):
+    """A remote retrieval failure safe to include in pack limitations."""
+
+
+def _error_url(url: str) -> str:
+    parts = urlsplit(url)
+    return urlunsplit((parts.scheme, parts.netloc.rsplit("@", 1)[-1], parts.path, "", ""))
 
 
 def now_jst() -> str:
@@ -29,12 +39,20 @@ def http_json(url: str, headers: dict[str, str] | None = None, timeout: int = 30
     request = Request(url, headers=request_headers)
     try:
         with urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
+            payload = json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"HTTP {exc.code} for {url}: {body[:500]}") from exc
-    except URLError as exc:
-        raise RuntimeError(f"Network error for {url}: {exc}") from exc
+        exc.close()
+        error = f"HTTP {exc.code} for {_error_url(url)}"
+    except (URLError, OSError, HTTPException) as exc:
+        error = f"Network retrieval failed for {_error_url(url)} ({type(exc).__name__})"
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        error = f"Invalid JSON response for {_error_url(url)}"
+    else:
+        if not isinstance(payload, dict):
+            raise RetrievalError(f"Expected a JSON object from {_error_url(url)}")
+        return payload
+    # Raise outside the handler so the original URL, reason and body are not chained.
+    raise RetrievalError(error) from None
 
 
 def http_text(url: str, headers: dict[str, str] | None = None, timeout: int = 30) -> str:
@@ -45,10 +63,11 @@ def http_text(url: str, headers: dict[str, str] | None = None, timeout: int = 30
         with urlopen(request, timeout=timeout) as response:
             return response.read().decode("utf-8", errors="replace")
     except HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"HTTP {exc.code} for {url}: {body[:500]}") from exc
-    except URLError as exc:
-        raise RuntimeError(f"Network error for {url}: {exc}") from exc
+        exc.close()
+        error = f"HTTP {exc.code} for {_error_url(url)}"
+    except (URLError, OSError, HTTPException) as exc:
+        error = f"Network retrieval failed for {_error_url(url)} ({type(exc).__name__})"
+    raise RetrievalError(error) from None
 
 
 def source(

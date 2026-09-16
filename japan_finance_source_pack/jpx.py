@@ -6,7 +6,7 @@ from io import StringIO
 from pathlib import Path
 from urllib.parse import urljoin
 
-from .common import http_text, source
+from .common import RetrievalError, http_text, source
 
 JPX_PAGES = {
     "margin_balance": {
@@ -30,7 +30,7 @@ JPX_PAGES = {
 def _file_candidates(page_url: str, limit: int = 12) -> tuple[list[dict], list[str]]:
     try:
         html = http_text(page_url, timeout=30)
-    except Exception as exc:  # noqa: BLE001
+    except RetrievalError as exc:
         return [], [f"JPX page fetch failed: {exc}"]
 
     hrefs = re.findall(r'href=["\']([^"\']+\.(?:csv|xls|xlsx|pdf|zip))["\']', html, flags=re.I)
@@ -88,9 +88,13 @@ def _add_csv_samples(file_candidates: list[dict], sample_size: int = 5) -> list[
         try:
             text = http_text(url, timeout=30)
             rows = list(csv.DictReader(StringIO(text)))
-        except Exception as exc:  # noqa: BLE001
+        except RetrievalError as exc:
             candidate["parse_status"] = "csv_parse_failed"
             limitations.append(f"JPX CSV candidate parse failed: {exc}")
+            continue
+        except csv.Error:
+            candidate["parse_status"] = "csv_parse_failed"
+            limitations.append("JPX CSV candidate parse failed: invalid CSV response")
             continue
         candidate["parse_status"] = "csv_sampled"
         candidate["sample_row_count"] = len(rows)

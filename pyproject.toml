@@ -27,5 +27,8 @@ Issues = "https://github.com/muracoco/japan-finance-source-pack/issues"
 [project.scripts]
 japan-finance-source-pack = "japan_finance_source_pack.cli:main"
 
+[tool.setuptools]
+packages = ["japan_finance_source_pack"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

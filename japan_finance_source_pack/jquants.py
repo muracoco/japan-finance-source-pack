@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from .common import http_json, make_url, source
+from .common import RetrievalError, http_json, make_url, source
 
 BASE_URL = "https://api.jquants.com/v2"
 DELAY_NOTE = "J-Quants Free data can be delayed and plan-limited. Verify before using as latest market evidence."
@@ -18,7 +18,10 @@ def jquants_listed_info(code: str) -> tuple[list[dict], list[dict], list[str]]:
         return [], [], ["JQUANTS_API_KEY is not set; listed-info retrieval was skipped."]
 
     url = make_url(f"{BASE_URL}/listed/info", {"code": code})
-    payload = http_json(url, headers={"x-api-key": key})
+    try:
+        payload = http_json(url, headers={"x-api-key": key})
+    except RetrievalError as exc:
+        return [], [], [f"J-Quants listed-info retrieval failed: {exc}"]
     rows = payload.get("info") or payload.get("data") or []
     if isinstance(rows, dict):
         rows = [rows]
@@ -48,7 +51,10 @@ def jquants_daily_quotes(code: str, date: str) -> tuple[list[dict], list[dict], 
         return [], [], ["JQUANTS_API_KEY is not set; daily-quotes retrieval was skipped."]
 
     url = make_url(f"{BASE_URL}/prices/daily_quotes", {"code": code, "date": _format_date(date)})
-    rows = _rows_from_jquants(url, key, "daily_quotes")
+    try:
+        rows = _rows_from_jquants(url, key, "daily_quotes")
+    except RetrievalError as exc:
+        return [], [], [f"J-Quants daily-quotes retrieval failed: {exc}"]
     limitations = [] if rows else ["J-Quants daily quotes returned no rows for this code/date."]
     return (
         [
@@ -73,7 +79,10 @@ def jquants_financial_statements(code: str) -> tuple[list[dict], list[dict], lis
         return [], [], ["JQUANTS_API_KEY is not set; financial-statements retrieval was skipped."]
 
     url = make_url(f"{BASE_URL}/fins/statements", {"code": code})
-    rows = _rows_from_jquants(url, key, "statements")
+    try:
+        rows = _rows_from_jquants(url, key, "statements")
+    except RetrievalError as exc:
+        return [], [], [f"J-Quants financial-statements retrieval failed: {exc}"]
     limitations = [] if rows else ["J-Quants financial statements returned no rows for this code."]
     return (
         [

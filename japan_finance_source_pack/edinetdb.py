@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from .common import http_json, source
+from .common import RetrievalError, http_json, source
 
 BASE_URL = "https://edinetdb.jp/v1"
 DELAY_NOTE = "EDINET DB aggregates public disclosure data. Verify source filing dates and attribution requirements."
@@ -18,7 +18,10 @@ def edinetdb_company_profile(code: str) -> tuple[list[dict], list[dict], list[st
         return [], [], ["EDINETDB_API_KEY is not set; EDINET DB lookup was skipped."]
 
     url = f"{BASE_URL}/companies/{code}"
-    payload = http_json(url, headers={"X-API-Key": key})
+    try:
+        payload = http_json(url, headers={"X-API-Key": key})
+    except RetrievalError as exc:
+        return [], [], [f"EDINET DB company profile retrieval failed: {exc}"]
     rows = _company_profile_rows(payload)
 
     limitations = []

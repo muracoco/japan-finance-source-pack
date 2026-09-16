@@ -37,7 +37,7 @@ That makes the workflow useful for:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -U pip pytest
+python -m pip install -e .
 ```
 
 No runtime third-party dependency is required for the current minimal version.
@@ -57,8 +57,10 @@ outputs/source_pack_7203_20260601.json
 For an offline-safe smoke run:
 
 ```powershell
-python -m japan_finance_source_pack.cli --code 7203 --name "Toyota Motor" --market TSE --date 20260601 --skip-jpx --skip-jquants --output outputs/sample.json
+python -m japan_finance_source_pack.cli --code 0000 --name "Sample Company" --market TSE --date 20260601 --offline --validate --output outputs/sample.json
 ```
+
+`--offline` disables every connector request, even when API credentials are set or `--parse-jpx-csv` is passed. It generates Company IR search URLs locally, leaves all fetched-data lists empty, and records the skipped sources in `limitations`. It does not open the search URLs.
 
 Add `--validate` to check the generated source-pack structure before writing it.
 
@@ -93,7 +95,7 @@ Compact excerpt:
 
 ## Optional Data Connectors
 
-All authenticated connectors are optional. Missing credentials should skip that source and leave an explicit limitation instead of failing the whole workflow.
+All authenticated connectors are optional. Missing credentials skip that source and leave an explicit limitation. HTTP errors, timeouts, network failures, and invalid JSON responses also leave a failure limitation while other sources continue. J-Quants requests are handled separately, so a failed endpoint does not discard successful results from the others.
 
 | Source | Environment variable | Current status |
 | --- | --- | --- |
@@ -114,6 +116,15 @@ $env:EDINETDB_API_KEY = "..."
 ```
 
 Do not commit `.env`, tokens, downloaded filings, generated reports, or cache files.
+
+## Reading Incomplete Packs
+
+- `Offline mode:` or `is not set; ... skipped` means retrieval was not attempted.
+- `retrieval failed`, `page fetch failed`, or `CSV candidate parse failed` means an attempt failed. These errors omit query strings, URL credentials, and response bodies.
+- An empty facts list alone does not prove that no filings or data exist. Check `limitations` and the relevant source's `row_count` and limitations.
+- Company IR search URLs are leads, not retrieved documents. A JPX source can remain in the pack as an official page URL even when fetching its page or CSV failed.
+
+The CLI can exit successfully with partial or offline results. `--validate` checks the JSON structure, not source coverage, freshness, or live API compatibility.
 
 ## Roadmap
 

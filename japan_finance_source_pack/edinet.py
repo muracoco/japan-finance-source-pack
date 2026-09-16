@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from .common import http_json, make_url, source
+from .common import RetrievalError, http_json, make_url, source
 
 BASE_URL = "https://api.edinet-fsa.go.jp/api/v2"
 DISCLOSURE_NOTE = "EDINET filing metadata is disclosure-date based. Verify document details before extracting facts."
@@ -26,7 +26,10 @@ def edinet_document_metadata(date: str, sec_code: str) -> tuple[list[dict], list
 
     query = {"date": _format_date(date), "type": 2, "Subscription-Key": key}
     url = make_url(f"{BASE_URL}/documents.json", query)
-    payload = http_json(url)
+    try:
+        payload = http_json(url)
+    except RetrievalError as exc:
+        return [], [], [f"EDINET metadata retrieval failed: {exc}"]
     rows = payload.get("results") or []
     if not isinstance(rows, list):
         rows = []
