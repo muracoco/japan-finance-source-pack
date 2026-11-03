@@ -1,5 +1,14 @@
 # Japan Finance Source Pack
 
+## 開発終了（2026年11月3日）
+
+2026年11月3日時点の最終状態を保存し、開発・保守を終了しました。このリポジトリは参照用のアーカイブです。
+
+日本株調査用の無料データ取得・検証パッケージの最終保存版です。既存の未完了課題を含み、今後のデータ提供元の仕様変更への追随は行いません。
+
+保存範囲・確認結果は [ARCHIVE_STATUS.md](ARCHIVE_STATUS.md) を参照してください。
+
+
 `japan-finance-source-pack` builds a small JSON source pack for Japanese equity research.
 
 The goal is to separate source discovery from final investment analysis. The tool collects or points to public-source evidence that a human analyst or an AI assistant can verify before writing a report.
